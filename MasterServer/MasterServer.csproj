@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CommandRunner\CommandRunner\CommandRunner.csproj" />
     <ProjectReference Include="..\MasterServer.Client\MasterServer.Client.csproj" />
     <ProjectReference Include="..\MasterServer.Server\MasterServer.Server.csproj" />
   </ItemGroup>

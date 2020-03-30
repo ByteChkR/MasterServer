@@ -3,7 +3,9 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandRunner;
 using MasterServer.Client;
+using MasterServer.Commands;
 using MasterServer.Common;
 using MasterServer.Server;
 
@@ -11,11 +13,33 @@ namespace MasterServer
 {
     class Program
     {
+        internal static bool Exit;
+        internal static bool FirstArgs=true;
+        internal static Server.MasterServer Master;
         static void Main(string[] args)
         {
             Assembly s = Assembly.GetExecutingAssembly();
             Directory.SetCurrentDirectory(Path.GetDirectoryName(s.Location));
-            Logger.DefaultLogger("Hello World!");
+
+            Runner.AddAssembly(Assembly.GetExecutingAssembly());
+            Logger.DefaultLogger("Console Initialized..");
+
+
+            Master = new Server.MasterServer(MasterServerSettings.Load("./Settings.xml"));
+
+
+            Runner.RunCommands(args);
+            FirstArgs = false;
+            while (!Exit)
+            {
+                string input = Console.ReadLine();
+                if (input == null) continue;
+                Runner.RunCommands(input.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            if(Master.IsRunning) Master.StopServer();
+
+            return;
 
             if (args.Length == 1 && args[0] == "-client")
                 StartClient();

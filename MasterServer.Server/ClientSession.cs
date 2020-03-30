@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using MasterServer.Common;
@@ -33,6 +34,10 @@ namespace MasterServer.Server
         }
 
         public ClientSessionState State { get; private set; }
+        public int HeartbeatsReceived { get; private set; }
+        public int BytesAvailable { get; private set; }
+        public string Name => ((IPEndPoint) Client.Client.RemoteEndPoint).Address + ":" +
+                              ((IPEndPoint) Client.Client.RemoteEndPoint).Port;
 
         //Ready Info
         private bool InstanceReady;
@@ -75,7 +80,6 @@ namespace MasterServer.Server
 
         public void SetInstanceReady(bool state, int port)
         {
-            Logger.DefaultLogger("Client Session was Signaled that a Game Instance is ready...");
             lock (InstanceReadyLockObj)
             {
                 InstanceReady = state;
@@ -85,7 +89,6 @@ namespace MasterServer.Server
 
         public void StartSession()
         {
-            Logger.DefaultLogger("Starting the Client Session...");
             SessionThread = Thread.CurrentThread;
             InitHandshake();
             lock (StateLockObj)
@@ -95,7 +98,6 @@ namespace MasterServer.Server
 
         public void StopSession()
         {
-            Logger.DefaultLogger("Stopping the Client Session...");
             lock (ForceStopLockObj)
             {
                 ForceStop = true;
@@ -121,6 +123,7 @@ namespace MasterServer.Server
                 int timePassed = Master.Settings.MinTimeHeartBeat;
                 while (timePassed < Master.Settings.HeartbeatTimeout)
                 {
+                    BytesAvailable = Client.Available;
                     if (Client.Available > 4)
                     {
                         int packets = Client.Available / 4;
@@ -129,6 +132,9 @@ namespace MasterServer.Server
                         {
                             Client.ReceivePacket(ref packet);
                         }
+
+                        HeartbeatsReceived += packets;
+
                         invalid = false;
                     }
                     Thread.Sleep(10);

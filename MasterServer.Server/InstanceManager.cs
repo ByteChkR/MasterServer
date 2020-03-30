@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using MasterServer.Common;
+using Process = System.Diagnostics.Process;
 
 namespace MasterServer.Server
 {
@@ -21,6 +23,18 @@ namespace MasterServer.Server
             Logger.DefaultLogger("Initializing Instance Master Server");
             Master = master;
             BlockedPorts = new bool[master.Settings.GameServerPortRange.Range];
+        }
+
+        public void StopGameInstances(int[] ports)
+        {
+            foreach (KeyValuePair<int, Process> gameInstance in GameInstances)
+            {
+                if (ports.Contains(gameInstance.Key))
+                {
+                    Logger.DefaultLogger("Killing Server On Port: " + gameInstance.Key);
+                    gameInstance.Value.Kill();
+                }
+            }
         }
 
         public void CloseAll()
@@ -56,14 +70,14 @@ namespace MasterServer.Server
             bool exi = File.Exists(path);
             int serverTimeout = 3600 * 1000;
             int noPlayerTimeout = 25 * 1000;
-            string args = $"--closeOnMatchEnded --no-player-timeout:{noPlayerTimeout} --server-timeout:{serverTimeout} --port:{port}";
+            string args = $"Game.HeadlessInfo.CloseOnMatchEnded:true Game.HeadlessInfo.NoPlayerTimeout:{noPlayerTimeout} Game.HeadlessInfo.Timeout:{serverTimeout} Game.GameNetworkInfo.DefaultAddress.Port:{port}";
             ProcessStartInfo psi = new ProcessStartInfo(path, args);
             psi.WorkingDirectory = workingDir;
             //psi.CreateNoWindow = true;
             Process p = new Process();
             p.StartInfo = psi;
 
-            Logger.DefaultLogger("Starting Server...");
+            Logger.DefaultLogger("Starting Game Server on Port: " + port);
             p.Start();
             return p;
         }
@@ -75,12 +89,42 @@ namespace MasterServer.Server
 
         private static void InitGameInstance(ClientSession[] sessions, int port)
         {
+            Thread.Sleep(5000);
             for (int i = 0; i < sessions.Length; i++)
             {
                 sessions[i].SetInstanceReady(true, port);
             }
         }
         #endregion
+
+        public ServerInstanceInfo[] GetServerInstanceInfos()
+        {
+            ServerInstanceInfo[] ret = new ServerInstanceInfo[BlockedPorts.Length];
+            lock (GameInstances)
+            {
+                for (int i = 0; i < BlockedPorts.Length; i++)
+                {
+                    int port = Master.Settings.GameServerPortRange.Min + i;
+                    if (!BlockedPorts[i])
+                    {
+                        ret[i] = new ServerInstanceInfo { Name = "UNUSED", Port = port, UpTime = "NONE" };
+                    }
+                    else
+                    {
+                        ret[i] = new ServerInstanceInfo
+                        {
+                            Name = GameInstances[port].ProcessName,
+                            Port = port,
+                            UpTime =
+                            (GameInstances[port].StartTime - DateTime.UtcNow).ToString()
+                        };
+                    }
+                }
+            }
+
+            return ret;
+        }
+
 
         public bool CanCreateGame()
         {
@@ -108,9 +152,8 @@ namespace MasterServer.Server
             {
                 if (gameInstance.Value.HasExited)
                 {
-                    Logger.DefaultLogger("Remove Inactive Game Instance on port: " + gameInstance.Key);
                     rems.Add(gameInstance.Key);
-                    Logger.DefaultLogger("Remaining Instances: " + (GameInstances.Count - rems.Count) + "/" + GameInstances.Count);
+                    Logger.DefaultLogger("Remove Instance on Port:" + gameInstance.Key + " Remaining Instances: " + (Master.Settings.GameServerPortRange.Range - rems.Count) + "/" + Master.Settings.GameServerPortRange.Range);
                     BlockedPorts[gameInstance.Key - Master.Settings.GameServerPortRange.Min] = false;
                 }
             }

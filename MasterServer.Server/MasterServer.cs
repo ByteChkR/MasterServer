@@ -11,6 +11,21 @@ using MasterServer.Common;
 
 namespace MasterServer.Server
 {
+
+    public struct SessionInfo
+    {
+        public string Name;
+        public int HeartbeatsSent;
+        public int BytesAvailable;
+    }
+
+    public struct ServerInstanceInfo
+    {
+        public string Name;
+        public int Port;
+        public string UpTime;
+    }
+
     public class MasterServer
     {
         internal MasterServerSettings Settings;
@@ -19,7 +34,9 @@ namespace MasterServer.Server
 
         private List<ClientSession> ActiveSessions = new List<ClientSession>();
 
+        public bool IsRunning;
         public int QueuedPlayers => ActiveSessions.Count;
+        public int GameInstances => InstanceManager.InstanceCount;
 
         private bool ForceStop;
 
@@ -46,8 +63,42 @@ namespace MasterServer.Server
                 }
         }
 
+        public void StopGameInstances(int[] ports)
+        {
+            InstanceManager.StopGameInstances(ports);
+        }
+
+        public ServerInstanceInfo[] GetServerInstanceInfos()
+        {
+            return InstanceManager.GetServerInstanceInfos();
+        }
+
+        public SessionInfo[] GetSessionInfos()
+        {
+            lock (ActiveSessionsLockObj)
+            {
+                SessionInfo[] ret = new SessionInfo[ActiveSessions.Count];
+
+                for (int i = 0; i < ret.Length; i++)
+                {
+                    ClientSession s = ActiveSessions[i];
+                    ret[i] = new SessionInfo
+                    {
+                        Name = s.Name,
+                        BytesAvailable = s.BytesAvailable,
+                        HeartbeatsSent = s.HeartbeatsReceived
+                    }; 
+                }
+
+                return ret;
+
+            }
+        }
+
+
         public void StartServer()
         {
+            IsRunning = true;
             Logger.DefaultLogger("Starting Master Server...");
             Thread listener = new Thread(ListenerServerLoop);
             listener.Start();
@@ -59,7 +110,11 @@ namespace MasterServer.Server
         public void StopServer()
         {
             Logger.DefaultLogger("Stopping Master Server...");
-            lock (ForceStopLockObj) ForceStop = true;
+            lock (ForceStopLockObj)
+            {
+                IsRunning = false;
+                ForceStop = true;
+            }
         }
 
         private List<ClientSession> GetReadyPlayers()
@@ -127,7 +182,6 @@ namespace MasterServer.Server
                 if(Listener.Pending())
                 {
                     TcpClient client = Listener.AcceptTcpClient();
-                    Logger.DefaultLogger("Accepting Connection...");
 
                     StartSession(client);
                 }

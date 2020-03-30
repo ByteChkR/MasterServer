@@ -17,7 +17,7 @@ namespace MasterServer.Server
         public override string ToString()
         {
             return
-                $"Master Server Settings: \nMaster Port: {MasterPort}\nGame Server Port Range: {GameServerPortRange}\nMaxGameServers: {MaxGameServers}\nServer Tick: {ServerListenerTick}\nHeartbeat Timeout: {HeartbeatTimeout}\nHeartbeat Time: {MinTimeHeartBeat}\nGame Server Path: {GameServerPath}";
+                $"Master Server Settings: \n\tMaster Port: {MasterPort}\n\tGame Server Port Range: {GameServerPortRange}\n\tMaxGameServers: {MaxGameServers}\n\tServer Tick: {ServerListenerTick}\n\tHeartbeat Timeout: {HeartbeatTimeout}\n\tHeartbeat Time: {MinTimeHeartBeat}\n\tGame Server Path: {GameServerPath}";
         }
 
         public void Save(string path)
