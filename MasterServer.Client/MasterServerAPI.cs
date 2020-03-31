@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MasterServer.Common;
@@ -48,18 +43,17 @@ namespace MasterServer.Client
         {
             return new Task<ServerInstanceResultPacket>(() => FindMatch(packet, token));
         }
-        
+
         public static Task<ServerInstanceResultPacket> FindMatchAsync(string ip, int port, CancellationToken token)
         {
             return new Task<ServerInstanceResultPacket>(() => FindMatch(ip, port, token));
         }
-        
+
 
         public static ServerHandshakePacket BeginConnection(string ip, int port)
         {
             TcpClient c = new TcpClient(ip, port);
-            ClientHandshakePacket packet = new ClientHandshakePacket();
-            c.ReceivePacket(ref packet);
+            ClientHandshakePacket packet = (ClientHandshakePacket)PacketSerializer.Serializer.GetPacket(c.GetStream());
             ServerHandshakePacket sp = new ServerHandshakePacket
             {
                 Client = c,
@@ -78,18 +72,20 @@ namespace MasterServer.Client
             TcpClient c = packet.Client;
 
             int waitTime = packet.HeartBeat;
-            while (c.Available == 0)
+            while (c.Connected && c.Available == 0)
             {
                 if (token.IsCancellationRequested)
                 {
+                    Logger.DefaultLogger("Aborting Queue");
                     return new ServerInstanceResultPacket();
                 }
+                PacketSerializer.Serializer.WritePacket(c.GetStream(), new ClientHeartBeatPacket());
                 Thread.Sleep(waitTime);
-                c.SendPacket(new ClientHeartBeatPacket());
                 Logger.DefaultLogger("Heartbeat...");
             }
-            ClientInstanceReadyPacket irp = new ClientInstanceReadyPacket();
-            c.ReceivePacket(ref irp);
+            if (c.Available == 0) throw new ApplicationException("The Client disconnected while reading the ready packet.");
+            ClientInstanceReadyPacket irp = (ClientInstanceReadyPacket)PacketSerializer.Serializer.GetPacket(c.GetStream());
+
 
             Logger.DefaultLogger($"Client: Current Instances: {packet.CurrentInstances}/{packet.MaxInstances}");
             Logger.DefaultLogger($"Client: Clients in Queue: {packet.WaitingQueue}");

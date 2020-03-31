@@ -1,11 +1,12 @@
 ﻿using CommandRunner;
+using MasterServer.Common;
 
 namespace MasterServer.Commands
 {
     public class StopServerCommand : AbstractCommand
     {
         public StopServerCommand() :
-            base(StopServer, new[] { "--stop-server", "-stop" }, "Stops the Server",
+            base(StopServer, new[] { "--stop-server", "-stop" }, "Stops the MatchMakingServer",
                 false)
         {
 
@@ -14,7 +15,15 @@ namespace MasterServer.Commands
 
         private static void StopServer(StartupInfo info, string[] args)
         {
-            Program.Master.StopServer();
+            if(Program.MatchMaker.IsRunning)
+            {
+                Logger.DefaultLogger("Stopping Server...");
+                Program.MatchMaker.StopServer();
+            }
+            else
+            {
+                Logger.DefaultLogger("Server not Started.");
+            }
         }
     }
 }

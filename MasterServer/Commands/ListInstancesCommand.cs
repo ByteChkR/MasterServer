@@ -1,6 +1,6 @@
 ﻿using CommandRunner;
 using MasterServer.Common;
-using MasterServer.Server;
+using MasterServer.Server.GameInstanceManaging;
 
 namespace MasterServer.Commands
 {
@@ -16,9 +16,9 @@ namespace MasterServer.Commands
 
         private static void ListInstances(StartupInfo info, string[] args)
         {
-            ServerInstanceInfo[] sinfos = Program.Master.GetServerInstanceInfos();
+            GameInstanceInfo[] sinfos = Program.MatchMaker.GetInstanceInfos();
             string s = $"Instances: {sinfos.Length}\n";
-            foreach (ServerInstanceInfo serverInstanceInfo in sinfos)
+            foreach (GameInstanceInfo serverInstanceInfo in sinfos)
             {
                 s += "\tPort: " + serverInstanceInfo.Port + "\n";
                 s += "\t\tName: " + serverInstanceInfo.Name + "\n";

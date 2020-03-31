@@ -1,11 +1,10 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace MasterServer.Common
 {
-    public static class ClientExtensions
+    internal static class ClientExtensions
     {
         public static void SendPacket<T>(this TcpClient client, T structure) where T : struct
         {

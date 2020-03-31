@@ -1,12 +1,11 @@
 ﻿using CommandRunner;
-using MasterServer.Common;
-using MasterServer.Server;
+using MasterServer.Server.GameInstanceManaging;
 
 namespace MasterServer.Commands
 {
-    public class KillIInstancesCommand : AbstractCommand
+    public class KillInstancesCommand : AbstractCommand
     {
-        public KillIInstancesCommand() :
+        public KillInstancesCommand() :
             base(KillInstances, new[] { "--kill-server-instances", "-ks" }, "Kills all or specified server instances.",
                 false)
         {
@@ -26,14 +25,14 @@ namespace MasterServer.Commands
             }
             else
             {
-                ServerInstanceInfo[] sis = Program.Master.GetServerInstanceInfos();
+                GameInstanceInfo[] sis = Program.MatchMaker.GetInstanceInfos();
                 ports = new int[sis.Length];
                 for (int i = 0; i < sis.Length; i++)
                 {
                     ports[i] = sis[i].Port;
                 }
             }
-            Program.Master.StopGameInstances(ports);
+            Program.MatchMaker.StopGameInstances(ports);
         }
     }
 }

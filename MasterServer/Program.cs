@@ -7,6 +7,8 @@ using CommandRunner;
 using MasterServer.Client;
 using MasterServer.Commands;
 using MasterServer.Common;
+using MasterServer.Common.Packets;
+using MasterServer.Common.Packets.Serializers;
 using MasterServer.Server;
 
 namespace MasterServer
@@ -14,18 +16,43 @@ namespace MasterServer
     class Program
     {
         internal static bool Exit;
-        internal static bool FirstArgs=true;
-        internal static Server.MasterServer Master;
+        internal static bool FirstArgs = true;
+        internal static MatchMakingServer MatchMaker;
+        internal static MatchMakerSettings Settings = new MatchMakerSettings();
         static void Main(string[] args)
+        {
+            if (args.Length == 1 && args[0] == "--client")
+            {
+                StartClient();
+                Console.ReadLine();
+            }
+            else
+            {
+                StartServer(args);
+            }
+
+        }
+
+        private static void StartServer(string[] args)
         {
             Assembly s = Assembly.GetExecutingAssembly();
             Directory.SetCurrentDirectory(Path.GetDirectoryName(s.Location));
 
-            Runner.AddAssembly(Assembly.GetExecutingAssembly());
+
+
+            Runner.AddCommand(new HelpCommand());
+            Runner.AddCommand(new LoadSettingsCommand());
+            Runner.AddCommand(new ServerOperationModeCommand());
+            Runner.AddCommand(new SaveSettingsCommand());
+            Runner.AddCommand(new ResetServerCommand());
+            Runner.AddCommand(new StartServerCommand());
+            Runner.AddCommand(new StopServerCommand());
+            Runner.AddCommand(new ExitCLICommand());
+            Runner.AddCommand(new KillInstancesCommand());
+            Runner.AddCommand(new ListClientQueueCommand());
+            Runner.AddCommand(new ListInstancesCommand());
+
             Logger.DefaultLogger("Console Initialized..");
-
-
-            Master = new Server.MasterServer(MasterServerSettings.Load("./Settings.xml"));
 
 
             Runner.RunCommands(args);
@@ -37,70 +64,35 @@ namespace MasterServer
                 Runner.RunCommands(input.Split(' ', StringSplitOptions.RemoveEmptyEntries));
             }
 
-            if(Master.IsRunning) Master.StopServer();
+            if (MatchMaker != null && MatchMaker.IsRunning) MatchMaker.StopServer();
 
-            return;
-
-            if (args.Length == 1 && args[0] == "-client")
-                StartClient();
-            else if (args.Length == 2 && args[0] == "-client")
-            {
-                int max = int.Parse(args[1]);
-                for (int i = 0; i < max; i++)
-                {
-                    Start(StartClient);
-                }
-            }
-            else
-            {
-                StartServer();
-                Console.ReadLine();
-            }
-
-
-        }
-
-        private static void StartServer()
-        {
-            MasterServerSettings ss = MasterServerSettings.Load("./Settings.xml");
-
-
-            Server.MasterServer master = new Server.MasterServer(ss);
-            master.StartServer();
-
-            string read = "";
-            while (read != "stop")
-            {
-                read = Console.ReadLine();
-            }
-
-            master.StopServer();
-
-            ss.Save("./Settings.xml");
         }
 
         private static void StartClient()
         {
-            Task<MasterServerAPI.ServerHandshakePacket> handshakeTask = MasterServerAPI.BeginConnectionAsync("213.109.162.193", 19999);
+
+            PacketSerializer.Serializer.AddSerializer(new ClientHeartBeatSerializer(), typeof(ClientHeartBeatPacket));
+            PacketSerializer.Serializer.AddSerializer(new ClientHandshakeSerializer(), typeof(ClientHandshakePacket));
+            PacketSerializer.Serializer.AddSerializer(new ClientInstanceReadySerializer(), typeof(ClientInstanceReadyPacket));
+
+            Task<MasterServerAPI.ServerHandshakePacket> handshakeTask = MasterServerAPI.BeginConnectionAsync("localhost", 19999);
             handshakeTask.Start();
-            Logger.DefaultLogger("Waiting for Server");
+            Logger.DefaultLogger("Waiting for MatchMakingServer");
             while (handshakeTask.Status == TaskStatus.Running)
             {
-                Thread.Sleep(100);
-                Console.Write(".");
             }
 
             if (handshakeTask.IsFaulted)
             {
-                return;
+                throw (handshakeTask.Exception as AggregateException).InnerExceptions[0];
             }
 
             MasterServerAPI.ServerHandshakePacket hpack = handshakeTask.Result;
             Logger.DefaultLogger("");
 
-            Logger.DefaultLogger("Server Info:");
+            Logger.DefaultLogger("MatchMakingServer Info:");
             Logger.DefaultLogger($"\tCurrent Game Instances: {hpack.CurrentInstances}/{hpack.MaxInstances}");
-            Logger.DefaultLogger($"\tClients in Queue: {hpack.WaitingQueue + 1}");
+            Logger.DefaultLogger($"\tClients in Queue: {hpack.WaitingQueue}");
             Logger.DefaultLogger($"\tHeartbeat: {hpack.HeartBeat}");
 
             Task<MasterServerAPI.ServerInstanceResultPacket> queueTask = MasterServerAPI.FindMatchAsync(hpack);
@@ -112,8 +104,11 @@ namespace MasterServer
                 Thread.Sleep(100);
             }
 
+            if (queueTask.IsFaulted)
+                throw queueTask.Exception;
+
             Logger.DefaultLogger("Finished Queue.");
-            Logger.DefaultLogger($"Game Server Instance Port: {queueTask.Result.Port}");
+            Logger.DefaultLogger($"Game MatchMakingServer Instance Port: {queueTask.Result.Port}");
             Logger.DefaultLogger("Finished Queue.");
 
         }

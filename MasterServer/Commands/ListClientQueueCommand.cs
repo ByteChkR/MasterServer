@@ -1,7 +1,7 @@
-﻿using System;
-using CommandRunner;
+﻿using CommandRunner;
 using MasterServer.Common;
-using MasterServer.Server;
+using MasterServer.Server.ConnectionManaging;
+using MasterServer.Server.GameInstanceManaging;
 
 namespace MasterServer.Commands
 {
@@ -19,13 +19,13 @@ namespace MasterServer.Commands
 
         private static void ListClientQueueCount(StartupInfo info, string[] args)
         {
-            SessionInfo[] sinfo = Program.Master.GetSessionInfos();
-            string s = $"Client Queue: { Program.Master.QueuedPlayers}\n";
-            foreach (SessionInfo sessionInfo in sinfo)
+            QueueInfo[] sinfo = Program.MatchMaker.GetQueueInfos();
+            string s = $"Client Queue: { sinfo.Length}\n";
+            foreach (QueueInfo sessionInfo in sinfo)
             {
                 s += "\tName: " + sessionInfo.Name + "\n";
-                s += "\t\tHeartbeats Sent:" + sessionInfo.HeartbeatsSent + "\n";
-                s += "\t\tBytes Available:" + sessionInfo.BytesAvailable + "\n\n";
+                s += "\t\tTime In Queue:" + sessionInfo.TimeInQueue + "\n";
+                s += "\t\tHeartbeats Sent:" + sessionInfo.HeartbeatsSent + "\n\n";
             }
 
             Logger.DefaultLogger(s);
