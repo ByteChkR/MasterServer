@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Text;
 
-namespace MasterServer.Common
+namespace MasterServer.Common.Networking
 {
-    public interface IPacketSerializer
-    {
-        object Deserialize(Stream s);
-        void Serialize(Stream s, object obj);
-    }
-
     public class PacketSerializer
     {
         public static readonly PacketSerializer Serializer = new PacketSerializer();
@@ -34,29 +26,42 @@ namespace MasterServer.Common
 
             public object Deserialize(Stream s)
             {
-                byte[] lenBytes = new byte[sizeof(ushort) * 2];
-                s.Read(lenBytes, 0, lenBytes.Length);
-                ushort len = BitConverter.ToUInt16(lenBytes, 0);
-                ushort packetNameLen = BitConverter.ToUInt16(lenBytes, sizeof(ushort));
-                ushort payloadLen = (ushort)(len - packetNameLen);
-                byte[] str = new byte[packetNameLen];
-                s.Read(str, 0, str.Length);
-                byte[] payload = new byte[payloadLen];
-                s.Read(payload, 0, payload.Length);
-                return new NetworkPacket(Encoding.ASCII.GetString(str), payload);
+                NetworkPackageStreamWrapper wrapper = new NetworkPackageStreamWrapper(s);
+
+                string packetName = wrapper.ReadString();
+                byte[] payload = wrapper.ReadBytes();
+                return new NetworkPacket(packetName, payload);
+
+                //byte[] lenBytes = new byte[sizeof(ushort) * 2];
+                //s.Read(lenBytes, 0, lenBytes.Length);
+
+                //ushort len = BitConverter.ToUInt16(lenBytes, 0);
+                //ushort packetNameLen = BitConverter.ToUInt16(lenBytes, sizeof(ushort));
+                //ushort payloadLen = (ushort)(len - packetNameLen);
+                //byte[] str = new byte[packetNameLen];
+                //s.Read(str, 0, str.Length);
+                //byte[] payload = new byte[payloadLen];
+                //s.Read(payload, 0, payload.Length);
+                //return new NetworkPacket(Encoding.ASCII.GetString(str), payload);
 
             }
 
             public void Serialize(Stream s, object obj)
             {
                 NetworkPacket packet = (NetworkPacket)obj;
-                byte[] str = Encoding.ASCII.GetBytes(packet.PacketType);
-                List<byte> c = new List<byte>();
-                c.AddRange(BitConverter.GetBytes((ushort)(str.Length + packet.Payload.Length)));
-                c.AddRange(BitConverter.GetBytes((ushort)str.Length));
-                c.AddRange(str);
-                c.AddRange(packet.Payload);
-                s.Write(c.ToArray(), 0, c.Count);
+
+                NetworkPackageStreamWrapper wrapper = new NetworkPackageStreamWrapper(s);
+
+                wrapper.Write(packet.PacketType);
+                wrapper.Write(packet.Payload);
+                wrapper.CompleteWrite();
+                //byte[] str = Encoding.ASCII.GetBytes(packet.PacketType);
+                //List<byte> c = new List<byte>();
+                //c.AddRange(BitConverter.GetBytes((ushort)(str.Length + packet.Payload.Length)));
+                //c.AddRange(BitConverter.GetBytes((ushort)str.Length));
+                //c.AddRange(str);
+                //c.AddRange(packet.Payload);
+                //s.Write(c.ToArray(), 0, c.Count);
             }
         }
 

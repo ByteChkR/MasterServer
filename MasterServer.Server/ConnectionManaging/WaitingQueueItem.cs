@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using MasterServer.Common;
-using MasterServer.Common.Packets;
+using MasterServer.Common.Networking;
+using MasterServer.Common.Networking.Packets;
 
 namespace MasterServer.Server.ConnectionManaging
 {

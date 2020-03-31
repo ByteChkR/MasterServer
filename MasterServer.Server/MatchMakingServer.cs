@@ -3,8 +3,9 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using MasterServer.Common;
-using MasterServer.Common.Packets;
-using MasterServer.Common.Packets.Serializers;
+using MasterServer.Common.Networking;
+using MasterServer.Common.Networking.Packets;
+using MasterServer.Common.Networking.Packets.Serializers;
 using MasterServer.Server.ConnectionManaging;
 using MasterServer.Server.GameInstanceManaging;
 using MasterServer.Server.PortManaging;
@@ -93,6 +94,7 @@ namespace MasterServer.Server
 
         private void AddToWaitQueue(TcpClient[] clients)
         {
+            if (clients.Length == 0) return;
             ClientHandshakePacket chp = new ClientHandshakePacket
             {
                 CurrentInstances = InstanceManager.InstanceCount,

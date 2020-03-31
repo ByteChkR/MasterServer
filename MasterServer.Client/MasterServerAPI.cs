@@ -3,7 +3,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MasterServer.Common;
-using MasterServer.Common.Packets;
+using MasterServer.Common.Networking;
+using MasterServer.Common.Networking.Packets;
 
 namespace MasterServer.Client
 {

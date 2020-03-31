@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace MasterServer.Common
+namespace MasterServer.Common.Networking
 {
     public class PacketHelper
     {

@@ -1,20 +1,18 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
 
-namespace MasterServer.Common.Packets.Serializers
+namespace MasterServer.Common.Networking.Packets.Serializers
 {
     public class SimpleStructSerializer<T> : IPacketSerializer
         where T : struct
     {
-
-        private static readonly int PacketSize = Marshal.SizeOf<T>();
-
         public object Deserialize(Stream s)
         {
-            byte[] data = new byte[PacketSize];
-            s.Read(data, 0, data.Length);
+            int size = Marshal.SizeOf<T>();
             T ret = default(T);
-            PacketHelper.BytesToStruct(data, ref ret);
+            byte[] bytes = new byte[size];
+            s.Read(bytes, 0, bytes.Length);
+            PacketHelper.BytesToStruct(bytes, ref ret);
             return ret;
         }
 

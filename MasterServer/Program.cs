@@ -7,8 +7,9 @@ using CommandRunner;
 using MasterServer.Client;
 using MasterServer.Commands;
 using MasterServer.Common;
-using MasterServer.Common.Packets;
-using MasterServer.Common.Packets.Serializers;
+using MasterServer.Common.Networking;
+using MasterServer.Common.Networking.Packets;
+using MasterServer.Common.Networking.Packets.Serializers;
 using MasterServer.Server;
 
 namespace MasterServer

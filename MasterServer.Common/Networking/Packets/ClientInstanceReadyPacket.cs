@@ -1,4 +1,4 @@
-﻿namespace MasterServer.Common.Packets
+﻿namespace MasterServer.Common.Networking.Packets
 {
     public struct ClientInstanceReadyPacket
     {
