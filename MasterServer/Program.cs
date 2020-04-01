@@ -14,13 +14,13 @@ using MasterServer.Server;
 
 namespace MasterServer
 {
-    class Program
+    internal class Program
     {
         internal static bool Exit;
         internal static bool FirstArgs = true;
         internal static MatchMakingServer MatchMaker;
         internal static MatchMakerSettings Settings = new MatchMakerSettings();
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (args.Length == 1 && args[0] == "--client")
             {
@@ -69,6 +69,7 @@ namespace MasterServer
 
         }
 
+
         private static void StartClient()
         {
 
@@ -76,49 +77,68 @@ namespace MasterServer
             PacketSerializer.Serializer.AddSerializer(new ClientHandshakeSerializer(), typeof(ClientHandshakePacket));
             PacketSerializer.Serializer.AddSerializer(new ClientInstanceReadySerializer(), typeof(ClientInstanceReadyPacket));
 
-            Task<MasterServerAPI.ServerHandshakePacket> handshakeTask = MasterServerAPI.BeginConnectionAsync("localhost", 19999);
-            handshakeTask.Start();
-            Logger.DefaultLogger("Waiting for MatchMakingServer");
-            while (handshakeTask.Status == TaskStatus.Running)
+            MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents();
+            evs.OnError = (MatchMakingErrorCode e, Exception ex) =>
             {
-            }
-
-            if (handshakeTask.IsFaulted)
+                Console.WriteLine("Error Code: " + e);
+                if (ex != null)
+                    throw ex;
+            };
+            evs.OnStatusUpdate = Console.WriteLine;
+            evs.OnSuccess = (MasterServerAPI.ServerInstanceResultPacket packet) =>
             {
-                throw (handshakeTask.Exception as AggregateException).InnerExceptions[0];
-            }
+                Console.WriteLine("Connection Successful: Error: " + packet.ErrorCode + "  Port:" + packet.Port);
+            };
 
-            MasterServerAPI.ServerHandshakePacket hpack = handshakeTask.Result;
-            Logger.DefaultLogger("");
+            Task<MasterServerAPI.ServerInstanceResultPacket> queue =
+                MasterServerAPI.QueueAsync(evs, "localhost", 19999, new CancellationToken());
+            queue.Start();
+            queue.Wait();
+            return;
 
-            Logger.DefaultLogger("MatchMakingServer Info:");
-            Logger.DefaultLogger($"\tCurrent Game Instances: {hpack.CurrentInstances}/{hpack.MaxInstances}");
-            Logger.DefaultLogger($"\tClients in Queue: {hpack.WaitingQueue}");
-            Logger.DefaultLogger($"\tHeartbeat: {hpack.HeartBeat}");
+            //    Task<MasterServerAPI.ServerHandshakePacket> handshakeTask = MasterServerAPI.BeginConnectionAsync("localhost", 19999);
+            //    handshakeTask.Start();
+            //    Logger.DefaultLogger("Waiting for MatchMakingServer");
+            //    while (handshakeTask.Status == TaskStatus.Running)
+            //    {
+            //    }
 
-            Task<MasterServerAPI.ServerInstanceResultPacket> queueTask = MasterServerAPI.FindMatchAsync(hpack);
-            queueTask.Start();
+            //    if (handshakeTask.IsFaulted)
+            //    {
+            //        throw (handshakeTask.Exception as AggregateException).InnerExceptions[0];
+            //    }
 
-            Logger.DefaultLogger("In Queue..");
-            while (queueTask.Status == TaskStatus.Running)
-            {
-                Thread.Sleep(100);
-            }
+            //    MasterServerAPI.ServerHandshakePacket hpack = handshakeTask.Result;
+            //    Logger.DefaultLogger("");
 
-            if (queueTask.IsFaulted)
-                throw queueTask.Exception;
+            //    Logger.DefaultLogger("MatchMakingServer Info:");
+            //    Logger.DefaultLogger($"\tCurrent Game Instances: {hpack.CurrentInstances}/{hpack.MaxInstances}");
+            //    Logger.DefaultLogger($"\tClients in Queue: {hpack.WaitingQueue}");
+            //    Logger.DefaultLogger($"\tHeartbeat: {hpack.HeartBeat}");
 
-            Logger.DefaultLogger("Finished Queue.");
-            Logger.DefaultLogger($"Game MatchMakingServer Instance Port: {queueTask.Result.Port}");
-            Logger.DefaultLogger("Finished Queue.");
+            //    Task<MasterServerAPI.ServerInstanceResultPacket> queueTask = MasterServerAPI.FindMatchAsync(hpack);
+            //    queueTask.Start();
+
+            //    Logger.DefaultLogger("In Queue..");
+            //    while (queueTask.Status == TaskStatus.Running)
+            //    {
+            //        Thread.Sleep(100);
+            //    }
+
+            //    if (queueTask.IsFaulted)
+            //        throw queueTask.Exception;
+
+            //    Logger.DefaultLogger("Finished Queue.");
+            //    Logger.DefaultLogger($"Game MatchMakingServer Instance Port: {queueTask.Result.Port}");
+            //    Logger.DefaultLogger("Finished Queue.");
 
         }
 
-        private static Thread Start(ThreadStart ac)
-        {
-            Thread t = new Thread(ac);
-            t.Start();
-            return t;
-        }
+        //private static Thread Start(ThreadStart ac)
+        //{
+        //    Thread t = new Thread(ac);
+        //    t.Start();
+        //    return t;
+        //}
     }
 }
