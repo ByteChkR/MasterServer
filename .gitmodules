@@ -1,3 +1,6 @@
 [submodule "CommandRunner"]
 	path = CommandRunner
 	url = https://github.com/ByteChkR/CommandRunner
+[submodule "Byt3"]
+	path = Byt3
+	url = https://github.com/ByteChkR/Byt3
