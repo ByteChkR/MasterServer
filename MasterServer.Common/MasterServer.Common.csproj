@@ -4,4 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Byt3\Byt3.Serialization\Byt3.Serialization.csproj" />
+  </ItemGroup>
+
 </Project>

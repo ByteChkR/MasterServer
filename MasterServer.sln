@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasterServer.Common", "Mast
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandRunner", "CommandRunner\CommandRunner\CommandRunner.csproj", "{54C59E20-8B76-4A7F-9774-0C6AD9DAC9AA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byt3.Serialization", "Byt3\Byt3.Serialization\Byt3.Serialization.csproj", "{646AB239-6D74-4360-9E9F-1E667F638DCA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{54C59E20-8B76-4A7F-9774-0C6AD9DAC9AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54C59E20-8B76-4A7F-9774-0C6AD9DAC9AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54C59E20-8B76-4A7F-9774-0C6AD9DAC9AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{646AB239-6D74-4360-9E9F-1E667F638DCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{646AB239-6D74-4360-9E9F-1E667F638DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{646AB239-6D74-4360-9E9F-1E667F638DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{646AB239-6D74-4360-9E9F-1E667F638DCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using Byt3.Serialization;
 using MasterServer.Common;
 using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
@@ -29,7 +30,7 @@ namespace MasterServer.Server.ConnectionManaging
             Identifier = Client.Client.RemoteEndPoint.ToString();
             Logger.DefaultLogger("Client " + Identifier + " added to the Waiting Queue.");
 
-            PacketSerializer.Serializer.WritePacket(Client.GetStream(), initPacket);
+            Byt3Serializer.WritePacket(Client.GetStream(), initPacket);
             
         }
 
@@ -46,7 +47,7 @@ namespace MasterServer.Server.ConnectionManaging
             
             while (Client.Available > 0)
             {
-                object o = PacketSerializer.Serializer.GetPacket(Client.GetStream());
+                object o = Byt3Serializer.ReadPacket(Client.GetStream());
                 if (o is ClientHeartBeatPacket)
                 {
                     //SendHeartbeat();
@@ -74,13 +75,13 @@ namespace MasterServer.Server.ConnectionManaging
 
         public void SendMatchFound(int port)
         {
-            PacketSerializer.Serializer.WritePacket(Client.GetStream(), new ClientInstanceReadyPacket() { Port = port });
+            Byt3Serializer.WritePacket(Client.GetStream(), new ClientInstanceReadyPacket() { Port = port });
             //CloseConnection();
         }
 
         private void SendHeartbeat()
         {
-            PacketSerializer.Serializer.WritePacket(Client.GetStream(), new ClientHeartBeatPacket());
+            Byt3Serializer.WritePacket(Client.GetStream(), new ClientHeartBeatPacket());
         }
 
         public int CompareTo(WaitingQueueItem otherItem)

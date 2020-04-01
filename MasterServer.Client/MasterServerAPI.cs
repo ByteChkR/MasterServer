@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Byt3.Serialization;
 using MasterServer.Common;
 using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
@@ -94,7 +95,6 @@ namespace MasterServer.Client
             }
             catch (Exception connEX)
             {
-                events.OnStatusUpdate?.Invoke("Null: " + (events.OnError == null));
                 events.OnError?.Invoke(MatchMakingErrorCode.SocketException, connEX);
                 events.OnStatusUpdate?.Invoke("Connection Failed... Exception: \n" + connEX.Message);
                 return new ServerHandshakePacket() { ErrorCode = MatchMakingErrorCode.SocketException, ErrorException = connEX };
@@ -104,7 +104,7 @@ namespace MasterServer.Client
             try
             {
                 events.OnStatusUpdate?.Invoke("Waiting for Handshake...");
-                obj = PacketSerializer.Serializer.GetPacket(c.GetStream());
+                obj = Byt3Serializer.ReadPacket(c.GetStream());
             }
             catch (Exception e)
             {
@@ -161,6 +161,7 @@ namespace MasterServer.Client
 
                 int waitTime = packet.HeartBeat;
                 events.OnStatusUpdate?.Invoke("In Queue..");
+                events.OnStatusUpdate?.Invoke(packet.ToString());
                 while (c.Connected && c.Available == 0)
                 {
                     if (token.IsCancellationRequested)
@@ -174,7 +175,7 @@ namespace MasterServer.Client
 
                     try
                     {
-                        PacketSerializer.Serializer.WritePacket(c.GetStream(), new ClientHeartBeatPacket());
+                        Byt3Serializer.WritePacket(c.GetStream(), new ClientHeartBeatPacket());
                     }
                     catch (Exception e)
                     {
@@ -201,7 +202,7 @@ namespace MasterServer.Client
 
                 try
                 {
-                    irp = (ClientInstanceReadyPacket)PacketSerializer.Serializer.GetPacket(c.GetStream());
+                    irp = (ClientInstanceReadyPacket)Byt3Serializer.ReadPacket(c.GetStream());
 
                     events.OnStatusUpdate?.Invoke("Received Packet Data..");
                 }
@@ -221,7 +222,7 @@ namespace MasterServer.Client
                 c.Close();
                 ServerInstanceResultPacket ret = new ServerInstanceResultPacket { Port = irp.Port, ErrorCode = MatchMakingErrorCode.None };
 
-                events.OnSuccess.Invoke(ret);
+                events.OnSuccess?.Invoke(ret);
                 return ret;
             }
             catch (Exception unhandled)

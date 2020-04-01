@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Byt3.Serialization;
 using CommandRunner;
 using MasterServer.Client;
 using MasterServer.Commands;
@@ -73,9 +74,9 @@ namespace MasterServer
         private static void StartClient()
         {
 
-            PacketSerializer.Serializer.AddSerializer(new ClientHeartBeatSerializer(), typeof(ClientHeartBeatPacket));
-            PacketSerializer.Serializer.AddSerializer(new ClientHandshakeSerializer(), typeof(ClientHandshakePacket));
-            PacketSerializer.Serializer.AddSerializer(new ClientInstanceReadySerializer(), typeof(ClientInstanceReadyPacket));
+            Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
+            Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
+            Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
 
             MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents();
             evs.OnError = (MatchMakingErrorCode e, Exception ex) =>

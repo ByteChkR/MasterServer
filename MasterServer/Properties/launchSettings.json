@@ -2,7 +2,7 @@
   "profiles": {
     "MasterServer": {
       "commandName": "Project",
-      "commandLineArgs": "--client"
+      "commandLineArgs": "-load Settings.xml -start"
     }
   }
 }

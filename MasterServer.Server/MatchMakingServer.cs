@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
+using Byt3.Serialization;
 using MasterServer.Common;
 using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
@@ -37,9 +38,9 @@ namespace MasterServer.Server
         public bool IsRunning { get; private set; }
         public MatchMakingServer(MatchMakerSettings settings)
         {
-            PacketSerializer.Serializer.AddSerializer(new ClientHeartBeatSerializer(), typeof(ClientHeartBeatPacket));
-            PacketSerializer.Serializer.AddSerializer(new ClientHandshakeSerializer(), typeof(ClientHandshakePacket));
-            PacketSerializer.Serializer.AddSerializer(new ClientInstanceReadySerializer(), typeof(ClientInstanceReadyPacket));
+            Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
+            Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
+            Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
             Settings = settings;
             Logger.DefaultLogger(Settings.ToString());
             PortManager = new PortManager(Settings);
