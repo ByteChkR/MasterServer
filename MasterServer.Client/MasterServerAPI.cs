@@ -18,12 +18,16 @@ namespace MasterServer.Client
             public Exception ErrorException;
         }
 
-        
+
         public class ConnectionEvents
         {
             public Action<string> OnStatusUpdate;
             public Action<MatchMakingErrorCode, Exception> OnError;
             public Action<ServerInstanceResultPacket> OnSuccess;
+            public override string ToString()
+            {
+                return $"Connection Events: Update: {OnStatusUpdate != null} Error: {OnError != null} Success: {OnSuccess != null}";
+            }
         }
 
         public struct ServerHandshakePacket
@@ -40,6 +44,7 @@ namespace MasterServer.Client
 
         public static Task<ServerInstanceResultPacket> QueueAsync(ConnectionEvents events, string ip, int port, CancellationToken token)
         {
+            Logger.DefaultLogger(events.ToString());
             return new Task<ServerInstanceResultPacket>(() => Queue(events, ip, port, token));
         }
 
@@ -89,8 +94,9 @@ namespace MasterServer.Client
             }
             catch (Exception connEX)
             {
-                events.OnStatusUpdate?.Invoke("Connection Failed... Exception: \n" + connEX.Message);
+                events.OnStatusUpdate?.Invoke("Null: " + (events.OnError == null));
                 events.OnError?.Invoke(MatchMakingErrorCode.SocketException, connEX);
+                events.OnStatusUpdate?.Invoke("Connection Failed... Exception: \n" + connEX.Message);
                 return new ServerHandshakePacket() { ErrorCode = MatchMakingErrorCode.SocketException, ErrorException = connEX };
             }
 
@@ -148,7 +154,7 @@ namespace MasterServer.Client
                 return new ServerInstanceResultPacket() { ErrorCode = packet.ErrorCode, ErrorException = packet.ErrorException };
             }
 
-            
+
             try
             {
                 TcpClient c = packet.Client;
@@ -222,9 +228,9 @@ namespace MasterServer.Client
             {
                 events.OnStatusUpdate?.Invoke("Packet Could not be Deserialized. Exception: " + unhandled.Message);
                 events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, unhandled);
-                return  new ServerInstanceResultPacket(){Port = -1, ErrorCode = MatchMakingErrorCode.UnhandledError, ErrorException = unhandled };
+                return new ServerInstanceResultPacket() { Port = -1, ErrorCode = MatchMakingErrorCode.UnhandledError, ErrorException = unhandled };
             }
-            
+
         }
 
         //public static ServerInstanceResultPacket FindMatch(ConnectionEvents events, string ip, int port, CancellationToken token)
