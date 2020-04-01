@@ -1,9 +1,4 @@
-﻿using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using MasterServer.Common.Networking;
-
-namespace MasterServer.Common
+﻿namespace MasterServer.Common
 {
 //    internal static class ClientExtensions
 //    {

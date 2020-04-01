@@ -1,26 +1,23 @@
-﻿using System.IO;
-using System.Runtime.InteropServices;
-using Byt3.Serialization;
+﻿using Byt3.Serialization;
 
 namespace MasterServer.Common.Networking.Packets.Serializers
 {
-    public class SimpleStructSerializer<T> : ATSerializer<T>
+    public abstract class SimpleStructSerializer<T> : ASerializer<T>
         where T : struct
     {
-        public override T DeserializePacket(Stream s)
+        public override T DeserializePacket(PrimitiveValueWrapper s)
         {
-            int size = Marshal.SizeOf<T>();
             T ret = default(T);
-            byte[] bytes = new byte[size];
-            s.Read(bytes, 0, bytes.Length);
+            byte[] bytes = s.ReadBytes();
+
             PacketHelper.BytesToStruct(bytes, ref ret);
             return ret;
         }
 
-        public override void SerializePacket(Stream s, T obj)
+        public override void SerializePacket(PrimitiveValueWrapper s, T obj)
         {
             byte[] data = PacketHelper.StructToBytes(obj);
-            s.Write(data, 0, data.Length);
+            s.Write(data);
         }
     }
 }

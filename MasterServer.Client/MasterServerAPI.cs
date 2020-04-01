@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Byt3.Serialization;
 using MasterServer.Common;
-using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
 
 namespace MasterServer.Client
@@ -64,34 +63,6 @@ namespace MasterServer.Client
             ServerHandshakePacket conn = BeginConnection(events, ip, port);
             return FindMatch(events, conn, token);
         }
-
-
-
-        //public static Task<ServerHandshakePacket> BeginConnectionAsync(ConnectionEvents events, string ip, int port)
-        //{
-        //    return new Task<ServerHandshakePacket>(() => BeginConnection(events, ip, port));
-        //}
-
-
-        //public static Task<ServerInstanceResultPacket> FindMatchAsync(ConnectionEvents events, ServerHandshakePacket packet)
-        //{
-        //    return FindMatchAsync(events, packet, CancellationToken.None);
-        //}
-        //public static Task<ServerInstanceResultPacket> FindMatchAsync(ConnectionEvents events, string ip, int port)
-        //{
-        //    return FindMatchAsync(events, ip, port, CancellationToken.None);
-        //}
-
-        //public static Task<ServerInstanceResultPacket> FindMatchAsync(ConnectionEvents events, ServerHandshakePacket packet, CancellationToken token)
-        //{
-        //    return new Task<ServerInstanceResultPacket>(() => FindMatch(events, packet, token));
-        //}
-
-        //public static Task<ServerInstanceResultPacket> FindMatchAsync(ConnectionEvents events, string ip, int port, CancellationToken token)
-        //{
-        //    return new Task<ServerInstanceResultPacket>(() => FindMatch(events, ip, port, token));
-        //}
-
 
         private static ServerHandshakePacket BeginConnection(ConnectionEvents events, string ip, int port)
         {
@@ -164,82 +135,91 @@ namespace MasterServer.Client
             }
 
 
-            try
+            //try
+            //{
+            TcpClient c = packet.Client;
+
+            int waitTime = packet.HeartBeat;
+            events.OnStatusUpdate?.Invoke("In Queue..");
+            Logger.DefaultLogger(packet.ToString());
+            while (c.Connected && c.Available == 0)
             {
-                TcpClient c = packet.Client;
-
-                int waitTime = packet.HeartBeat;
-                events.OnStatusUpdate?.Invoke("In Queue..");
-                Logger.DefaultLogger(packet.ToString());
-                while (c.Connected && c.Available == 0)
+                if (token.IsCancellationRequested)
                 {
-                    if (token.IsCancellationRequested)
-                    {
-                        Logger.DefaultLogger("Aborting Queue");
-                        events.OnStatusUpdate?.Invoke("Aborting Queue...");
-                        events.OnError?.Invoke(MatchMakingErrorCode.ClientQueueAborted, null);
+                    Logger.DefaultLogger("Aborting Queue");
+                    events.OnStatusUpdate?.Invoke("Aborting Queue...");
+                    events.OnError?.Invoke(MatchMakingErrorCode.ClientQueueAborted, null);
 
-                        return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.ClientQueueAborted };
-                    }
-
-                    try
-                    {
-                        Byt3Serializer.WritePacket(c.GetStream(), new ClientHeartBeatPacket());
-                    }
-                    catch (Exception e)
-                    {
-                        events.OnStatusUpdate?.Invoke("Packet Could not be Deserialized. Exception: " + e.Message);
-                        events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, e);
-                        return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.PacketSerializationException, ErrorException = e };
-                    }
-                    Thread.Sleep(waitTime);
-                    Logger.DefaultLogger("Heartbeat...");
+                    return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.ClientQueueAborted };
                 }
-
-
-
-                if (c.Available == 0)
-                {
-                    events.OnStatusUpdate?.Invoke("Client has Disconnected during Queue.");
-                    events.OnError?.Invoke(MatchMakingErrorCode.ClientDisconnectDuringReady, null);
-                    return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.ClientDisconnectDuringReady };
-                }
-                ClientInstanceReadyPacket irp;
-
-
-                events.OnStatusUpdate?.Invoke("Creating Match...");
 
                 try
                 {
-                    irp = (ClientInstanceReadyPacket)Byt3Serializer.ReadPacket(c.GetStream());
-
-                    events.OnStatusUpdate?.Invoke("Received Packet Data..");
+                    Byt3Serializer.WritePacket(c.GetStream(), new ClientHeartBeatPacket());
                 }
                 catch (Exception e)
                 {
                     events.OnStatusUpdate?.Invoke("Packet Could not be Deserialized. Exception: " + e.Message);
-                    events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, e);
-                    return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.PacketSerializationException, ErrorException = e };
+
+                    break; //We could still have some data in the stream that could be our instance ready packet
+
+                   //events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, e);
+                    //return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.PacketSerializationException, ErrorException = e };
                 }
-
-
-                events.OnStatusUpdate?.Invoke("Match Starting on Port: " + irp.Port);
-
-                Logger.DefaultLogger($"Client: Current Instances: {packet.CurrentInstances}/{packet.MaxInstances}");
-                Logger.DefaultLogger($"Client: Clients in Queue: {packet.WaitingQueue}");
-                Logger.DefaultLogger($"Client: Instance Ready: {irp.Port}");
-                c.Close();
-                ServerInstanceResultPacket ret = new ServerInstanceResultPacket { Port = irp.Port, ErrorCode = MatchMakingErrorCode.None };
-
-                events.OnSuccess?.Invoke(ret);
-                return ret;
+                Thread.Sleep(waitTime);
+                Logger.DefaultLogger("Heartbeat...");
             }
-            catch (Exception unhandled)
+
+            
+
+            if (c.Available == 0)
             {
-                events.OnStatusUpdate?.Invoke("Packet Could not be Deserialized. Exception: " + unhandled.Message);
-                events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, unhandled);
-                return new ServerInstanceResultPacket() { Port = -1, ErrorCode = MatchMakingErrorCode.UnhandledError, ErrorException = unhandled };
+                events.OnStatusUpdate?.Invoke("Client or Server has Disconnected during Queue.");
+                events.OnError?.Invoke(MatchMakingErrorCode.ClientDisconnectDuringReady, null);
+                return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.ClientDisconnectDuringReady };
             }
+            ClientInstanceReadyPacket irp;
+
+
+            events.OnStatusUpdate?.Invoke("Creating Match...");
+
+            try
+            {
+                irp = (ClientInstanceReadyPacket)Byt3Serializer.ReadPacket(c.GetStream());
+
+                events.OnStatusUpdate?.Invoke("Received Packet Data..");
+            }
+            catch (Exception e)
+            {
+                events.OnStatusUpdate?.Invoke("Packet Could not be Deserialized. Exception: " + e.Message);
+                events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, e);
+                return new ServerInstanceResultPacket() { ErrorCode = MatchMakingErrorCode.PacketSerializationException, ErrorException = e };
+            }
+
+
+            events.OnStatusUpdate?.Invoke("Match Starting on Port: " + irp.Port);
+
+            Logger.DefaultLogger($"Client: Current Instances: {packet.CurrentInstances}/{packet.MaxInstances}");
+            Logger.DefaultLogger($"Client: Clients in Queue: {packet.WaitingQueue}");
+            Logger.DefaultLogger($"Client: Instance Ready: {irp.Port}");
+
+            if (c.Connected)
+            {
+                c.Close();
+            }
+
+
+            ServerInstanceResultPacket ret = new ServerInstanceResultPacket { Port = irp.Port, ErrorCode = MatchMakingErrorCode.None };
+
+            events.OnSuccess?.Invoke(ret);
+            return ret;
+            //}
+            //catch (Exception unhandled)
+            //{
+            //    events.OnStatusUpdate?.Invoke("Packet Could not be Deserialized. Exception: " + unhandled.Message);
+            //    events.OnError?.Invoke(MatchMakingErrorCode.PacketSerializationException, unhandled);
+            //    return new ServerInstanceResultPacket() { Port = -1, ErrorCode = MatchMakingErrorCode.UnhandledError, ErrorException = unhandled };
+            //}
 
         }
 

@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Threading;
 using Byt3.Serialization;
 using MasterServer.Common;
-using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
 using MasterServer.Common.Networking.Packets.Serializers;
 using MasterServer.Server.ConnectionManaging;
@@ -41,6 +40,7 @@ namespace MasterServer.Server
             Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
             Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
             Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
+            Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
             Settings = settings;
             Logger.DefaultLogger(Settings.ToString());
             PortManager = new PortManager(Settings);
@@ -113,6 +113,7 @@ namespace MasterServer.Server
             {
                 if (RemoveList.Contains(WaitingQueue[i]))
                 {
+                    if(!WaitingQueue[i].IsConnected || WaitingQueue[i].ReceivedEndConnection())
                     RemoveList.Remove(WaitingQueue[i]);
                     WaitingQueue.RemoveAt(i);
                     continue;
@@ -131,7 +132,7 @@ namespace MasterServer.Server
         private void RemoveQueueItem(WaitingQueueItem item)
         {
             Logger.DefaultLogger("Connection Finished: " + item.Identifier);
-            item.CloseConnection();
+            //item.CloseConnection();
         }
 
         private void TryCreateMatch()
@@ -158,14 +159,17 @@ namespace MasterServer.Server
                     {
                         Logger.DefaultLogger("Notifying Player: " + players[i].Identifier);
                         players[i].SendMatchFound(port.PortNum);
-                        Thread.Sleep(1000);
+                    }
+
+                    Thread.Sleep(1000);
+
+                    for (int i = 0; i < players.Length; i++)
+                    {
                         RemoveQueueItem(players[i]);
                     }
                 });
 
                 t.Start();
-
-
             }
         }
 

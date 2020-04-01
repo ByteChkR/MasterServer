@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
 using Byt3.Serialization;
 using MasterServer.Common;
-using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
 
 namespace MasterServer.Server.ConnectionManaging
@@ -20,6 +20,13 @@ namespace MasterServer.Server.ConnectionManaging
         private DateTime LastHeartBeat;
         private readonly DateTime StartQueueTime;
 
+        public bool IsConnected => Client.Connected;
+
+        public bool ReceivedEndConnection()
+        {
+            return Byt3Serializer.ReadPacket(Client.GetStream()) is ServerExitPacket;
+        }
+
         public WaitingQueueItem(int heartBeatInterval, int maxMissedHeartBeats, ClientHandshakePacket initPacket, TcpClient client)
         {
             HeartBeatInterval = heartBeatInterval;
@@ -31,7 +38,7 @@ namespace MasterServer.Server.ConnectionManaging
             Logger.DefaultLogger("Client " + Identifier + " added to the Waiting Queue.");
 
             Byt3Serializer.WritePacket(Client.GetStream(), initPacket);
-            
+
         }
 
         public QueueInfo GetQueueInfo()
@@ -44,7 +51,7 @@ namespace MasterServer.Server.ConnectionManaging
             int millisSince = (int)(DateTime.Now - LastHeartBeat).TotalMilliseconds;
             if (millisSince <= HeartBeatInterval) return true; //Does not need to have heart beat this frame because server tick != heart beat tick
 
-            
+
             while (Client.Available > 0)
             {
                 object o = Byt3Serializer.ReadPacket(Client.GetStream());
@@ -70,7 +77,9 @@ namespace MasterServer.Server.ConnectionManaging
 
         public void CloseConnection()
         {
+
             Client.Close();
+
         }
 
         public void SendMatchFound(int port)

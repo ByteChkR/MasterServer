@@ -8,7 +8,6 @@ using CommandRunner;
 using MasterServer.Client;
 using MasterServer.Commands;
 using MasterServer.Common;
-using MasterServer.Common.Networking;
 using MasterServer.Common.Networking.Packets;
 using MasterServer.Common.Networking.Packets.Serializers;
 using MasterServer.Server;
@@ -24,6 +23,12 @@ namespace MasterServer
         private static void Main(string[] args)
         {
             if (args.Length == 1 && args[0] == "--client")
+            {
+                StartClientSychronous();
+                Console.ReadLine();
+                return;
+            }
+            else if (args.Length == 1 && args[0] == "--async-client")
             {
                 StartClient();
                 Console.ReadLine();
@@ -70,6 +75,34 @@ namespace MasterServer
 
         }
 
+        private static void StartClientSychronous()
+        {
+            Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
+            Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
+            Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
+            Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
+
+            MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents();
+            evs.OnError = (MatchMakingErrorCode e, Exception ex) =>
+            {
+                Console.WriteLine("Error Code: " + e);
+                if (ex != null)
+                    throw ex;
+            };
+            evs.OnStatusUpdate = Console.WriteLine;
+            evs.OnSuccess = (MasterServerAPI.ServerInstanceResultPacket packet) =>
+            {
+                Console.WriteLine("Connection Successful: Error: " + packet.ErrorCode + "  Port:" + packet.Port);
+            };
+
+            MasterServerAPI.Queue(evs, "localhost", 19999, new CancellationToken());
+
+            //Task<MasterServerAPI.ServerInstanceResultPacket> queue =
+            //    MasterServerAPI.QueueAsync(evs, "localhost", 19999, new CancellationToken());
+            //queue.Start();
+            //queue.Wait();
+            return;
+        }
 
         private static void StartClient()
         {
@@ -77,6 +110,7 @@ namespace MasterServer
             Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
             Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
             Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
+            Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
 
             MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents();
             evs.OnError = (MatchMakingErrorCode e, Exception ex) =>
