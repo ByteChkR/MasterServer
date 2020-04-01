@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +41,14 @@ namespace MasterServer.Client
             public int CurrentInstances;
             public int WaitingQueue;
             public int HeartBeat;
+
+            public override string ToString()
+            {
+                EndPoint epl = Client.Client.LocalEndPoint;
+                EndPoint epr = Client.Client.RemoteEndPoint;
+                return
+                    $"Handshake:\r\n\tCurrent Game Instances: {CurrentInstances}/{MaxInstances}\r\n\tClients in Queue: {WaitingQueue}\r\n\tHeartbeat: {HeartBeat}\r\n\tError Code: {ErrorCode}\r\n\tException: {ErrorException}\r\n\tClient Local: {epl}\r\n\tClient Remote: {epr}";
+            }
         }
 
 
@@ -161,7 +170,7 @@ namespace MasterServer.Client
 
                 int waitTime = packet.HeartBeat;
                 events.OnStatusUpdate?.Invoke("In Queue..");
-                events.OnStatusUpdate?.Invoke(packet.ToString());
+                Logger.DefaultLogger(packet.ToString());
                 while (c.Connected && c.Available == 0)
                 {
                     if (token.IsCancellationRequested)
