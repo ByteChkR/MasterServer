@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Sockets;
-using System.Threading;
 using Byt3.Serialization;
 using MasterServer.Common;
 using MasterServer.Common.Networking.Packets;

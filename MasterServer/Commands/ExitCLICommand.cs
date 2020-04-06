@@ -1,4 +1,4 @@
-﻿using CommandRunner;
+﻿using Byt3.CommandRunner;
 
 namespace MasterServer.Commands
 {

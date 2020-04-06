@@ -1,4 +1,5 @@
 ﻿using Byt3.Serialization;
+using Byt3.Serialization.Serializers;
 
 namespace MasterServer.Common.Networking.Packets.Serializers
 {

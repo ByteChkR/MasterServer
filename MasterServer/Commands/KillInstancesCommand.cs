@@ -1,4 +1,4 @@
-﻿using CommandRunner;
+﻿using Byt3.CommandRunner;
 using MasterServer.Server.GameInstanceManaging;
 
 namespace MasterServer.Commands

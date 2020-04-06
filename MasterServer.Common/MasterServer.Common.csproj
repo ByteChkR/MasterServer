@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Byt3\Byt3.Serialization\Byt3.Serialization.csproj" />
+    <ProjectReference Include="..\Byt3\Libraries\Byt3.Serialization\Byt3.Serialization.csproj" />
   </ItemGroup>
 
 </Project>
