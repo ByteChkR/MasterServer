@@ -1,4 +1,5 @@
-﻿using Byt3.CommandRunner;
+﻿using Byt3.ADL;
+using Byt3.CommandRunner;
 using MasterServer.Common;
 using MasterServer.Server.ConnectionManaging;
 
@@ -9,14 +10,14 @@ namespace MasterServer.Commands
 
 
         public ListClientQueueCommand() :
-            base(ListClientQueueCount, new[] { "--list-queued-clients", "-lq" }, "Lists all Clients in Queue",
+            base(new[] { "--list-queued-clients", "-lq" }, "Lists all Clients in Queue",
             false)
         {
-
+            CommandAction = ListClientQueueCount;
         }
 
 
-        private static void ListClientQueueCount(StartupInfo info, string[] args)
+        private void ListClientQueueCount(StartupArgumentInfo info, string[] args)
         {
             QueueInfo[] sinfo = Program.MatchMaker.GetQueueInfos();
             string s = $"Client Queue: { sinfo.Length}\n";
@@ -27,7 +28,7 @@ namespace MasterServer.Commands
                 s += "\t\tHeartbeats Sent:" + sessionInfo.HeartbeatsSent + "\n\n";
             }
 
-            Logger.DefaultLogger(s);
+            Logger.Log(LogType.Log, s);
         }
     }
 

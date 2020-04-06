@@ -12,7 +12,7 @@ namespace MasterServer.Commands
         }
 
 
-        private static void Exit(StartupInfo info, string[] args)
+        private static void Exit(StartupArgumentInfo info, string[] args)
         {
             Program.Exit = true;
         }

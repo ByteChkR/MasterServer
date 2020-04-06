@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Byt3.ADL;
 using Byt3.CommandRunner;
 using Byt3.Serialization;
 using MasterServer.Client;
@@ -22,6 +23,9 @@ namespace MasterServer
         internal static MatchMakerSettings Settings = new MatchMakerSettings();
         private static void Main(string[] args)
         {
+
+            Debug.DefaultInitialization();
+
             if (args.Length == 1 && args[0] == "--client")
             {
                 StartClientSychronous();
@@ -47,7 +51,7 @@ namespace MasterServer
 
 
 
-            Runner.AddCommand(new HelpCommand());
+            Runner.AddCommand(new DefaultHelpCommand());
             Runner.AddCommand(new LoadSettingsCommand());
             Runner.AddCommand(new ServerOperationModeCommand());
             Runner.AddCommand(new SaveSettingsCommand());
@@ -82,17 +86,20 @@ namespace MasterServer
             Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
             Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
 
-            MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents();
-            evs.OnError = (MatchMakingErrorCode e, Exception ex) =>
+            MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents
             {
-                Console.WriteLine("Error Code: " + e);
-                if (ex != null)
-                    throw ex;
-            };
-            evs.OnStatusUpdate = Console.WriteLine;
-            evs.OnSuccess = (MasterServerAPI.ServerInstanceResultPacket packet) =>
-            {
-                Console.WriteLine("Connection Successful: Error: " + packet.ErrorCode + "  Port:" + packet.Port);
+                OnError = (MatchMakingErrorCode e, Exception ex) =>
+                {
+                    Console.WriteLine("Error Code: " + e);
+                    if (ex != null)
+                        throw ex;
+                },
+                OnStatusUpdate = Console.WriteLine,
+                OnSuccess = (MasterServerAPI.ServerInstanceResultPacket packet) =>
+                {
+                    Console.WriteLine("Connection Successful: Error: " + packet.ErrorCode + "  Port:" +
+                                      packet.Port);
+                }
             };
 
             MasterServerAPI.Queue(evs, "localhost", 19999, new CancellationToken());
@@ -112,17 +119,20 @@ namespace MasterServer
             Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
             Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
 
-            MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents();
-            evs.OnError = (MatchMakingErrorCode e, Exception ex) =>
+            MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents
             {
-                Console.WriteLine("Error Code: " + e);
-                if (ex != null)
-                    throw ex;
-            };
-            evs.OnStatusUpdate = Console.WriteLine;
-            evs.OnSuccess = (MasterServerAPI.ServerInstanceResultPacket packet) =>
-            {
-                Console.WriteLine("Connection Successful: Error: " + packet.ErrorCode + "  Port:" + packet.Port);
+                OnError = (MatchMakingErrorCode e, Exception ex) =>
+                {
+                    Console.WriteLine("Error Code: " + e);
+                    if (ex != null)
+                        throw ex;
+                },
+                OnStatusUpdate = Console.WriteLine,
+                OnSuccess = (MasterServerAPI.ServerInstanceResultPacket packet) =>
+                {
+                    Console.WriteLine("Connection Successful: Error: " + packet.ErrorCode + "  Port:" +
+                                      packet.Port);
+                }
             };
 
             Task<MasterServerAPI.ServerInstanceResultPacket> queue =

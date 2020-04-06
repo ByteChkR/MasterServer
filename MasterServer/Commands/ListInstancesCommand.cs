@@ -1,4 +1,5 @@
-﻿using Byt3.CommandRunner;
+﻿using Byt3.ADL;
+using Byt3.CommandRunner;
 using MasterServer.Common;
 using MasterServer.Server.GameInstanceManaging;
 
@@ -7,14 +8,14 @@ namespace MasterServer.Commands
     public class ListInstancesCommand:AbstractCommand
     {
         public ListInstancesCommand() :
-            base(ListInstances, new[] { "--list-server-instances", "-ls" }, "Lists all Running Game Servers",
+            base( new[] { "--list-server-instances", "-ls" }, "Lists all Running Game Servers",
                 false)
         {
-
+            CommandAction = ListInstances;
         }
 
 
-        private static void ListInstances(StartupInfo info, string[] args)
+        private void ListInstances(StartupArgumentInfo info, string[] args)
         {
             GameInstanceInfo[] sinfos = Program.MatchMaker.GetInstanceInfos();
             string s = $"Instances: {sinfos.Length}\n";
@@ -25,7 +26,7 @@ namespace MasterServer.Commands
                 s += "\t\tUptime: " + serverInstanceInfo.UpTime + "\n\n";
             }
 
-            Logger.DefaultLogger(s);
+            Logger.Log(LogType.Log, s);
         }
     }
 }

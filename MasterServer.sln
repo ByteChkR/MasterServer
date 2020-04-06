@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byt3.CommandRunner", "Byt3\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byt3.Utilities.Serialization", "Byt3\Utilities\Byt3.Utilities.Serialization\Byt3.Utilities.Serialization.csproj", "{DDE9ABD1-0D20-4A32-8E6A-D1317943F37B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Byt3.ADL", "Byt3\Libraries\Byt3.ADL\Byt3.ADL\Byt3.ADL.csproj", "{04EE0851-A1B4-4E90-9AC9-FA2E40C96585}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{DDE9ABD1-0D20-4A32-8E6A-D1317943F37B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDE9ABD1-0D20-4A32-8E6A-D1317943F37B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDE9ABD1-0D20-4A32-8E6A-D1317943F37B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04EE0851-A1B4-4E90-9AC9-FA2E40C96585}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04EE0851-A1B4-4E90-9AC9-FA2E40C96585}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04EE0851-A1B4-4E90-9AC9-FA2E40C96585}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04EE0851-A1B4-4E90-9AC9-FA2E40C96585}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
-﻿using Byt3.CommandRunner;
+﻿using Byt3.ADL;
+using Byt3.CommandRunner;
 using MasterServer.Common;
 
 namespace MasterServer.Commands
@@ -6,17 +7,17 @@ namespace MasterServer.Commands
     public class SaveSettingsCommand : AbstractCommand
     {
         public SaveSettingsCommand() :
-            base(SaveSettings, new[] { "--save-settings", "-save" }, "Saves a Settings File", false)
+            base( new[] { "--save-settings", "-save" }, "Saves a Settings File", false)
         {
-
+            CommandAction = SaveSettings;
         }
 
 
-        private static void SaveSettings(StartupInfo info, string[] args)
+        private void SaveSettings(StartupArgumentInfo info, string[] args)
         {
             if (args.Length > 0)
             {
-                Logger.DefaultLogger("Saved Settings.");
+                Logger.Log(LogType.Log, "Saved Settings.");
                 Program.Settings.Save(args[0]);
             }
         }

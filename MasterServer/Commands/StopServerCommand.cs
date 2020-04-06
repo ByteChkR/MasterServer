@@ -1,4 +1,5 @@
-﻿using Byt3.CommandRunner;
+﻿using Byt3.ADL;
+using Byt3.CommandRunner;
 using MasterServer.Common;
 
 namespace MasterServer.Commands
@@ -6,23 +7,23 @@ namespace MasterServer.Commands
     public class StopServerCommand : AbstractCommand
     {
         public StopServerCommand() :
-            base(StopServer, new[] { "--stop-server", "-stop" }, "Stops the MatchMakingServer",
+            base(new[] { "--stop-server", "-stop" }, "Stops the MatchMakingServer",
                 false)
         {
-
+            CommandAction = StopServer;
         }
 
 
-        private static void StopServer(StartupInfo info, string[] args)
+        private void StopServer(StartupArgumentInfo info, string[] args)
         {
             if(Program.MatchMaker.IsRunning)
             {
-                Logger.DefaultLogger("Stopping Server...");
+                Logger.Log(LogType.Log, "Stopping Server...");
                 Program.MatchMaker.StopServer();
             }
             else
             {
-                Logger.DefaultLogger("Server not Started.");
+                Logger.Log(LogType.Log, "Server not Started.");
             }
         }
     }

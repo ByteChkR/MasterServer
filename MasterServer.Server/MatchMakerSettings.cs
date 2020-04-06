@@ -70,7 +70,7 @@ namespace MasterServer.Server
                 s.Close();
                 return ret;
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 s?.Close();
                 Logger.DefaultLogger("Could Not load the Settings File at location " + path);

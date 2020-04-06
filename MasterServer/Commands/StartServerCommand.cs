@@ -1,4 +1,5 @@
-﻿using Byt3.CommandRunner;
+﻿using Byt3.ADL;
+using Byt3.CommandRunner;
 using MasterServer.Common;
 using MasterServer.Server;
 
@@ -7,25 +8,25 @@ namespace MasterServer.Commands
     public class StartServerCommand : AbstractCommand
     {
         public StartServerCommand() :
-            base(StartServer, new[] { "--start-server", "-start" }, "Starts the MatchMakingServer",
+            base( new[] { "--start-server", "-start" }, "Starts the MatchMakingServer",
                 false)
         {
-
+            CommandAction = StartServer;
         }
 
 
-        private static void StartServer(StartupInfo info, string[] args)
+        private void StartServer(StartupArgumentInfo info, string[] args)
         {
             if (Program.MatchMaker == null) Program.MatchMaker = new MatchMakingServer(Program.Settings);
 
             if (!Program.MatchMaker.IsRunning)
             {
-                Logger.DefaultLogger("Starting Server...");
+                Logger.Log(LogType.Log, "Starting Server...");
                 Program.MatchMaker.StartServer();
             }
             else
             {
-                Logger.DefaultLogger("Server already started.");
+                Logger.Log(LogType.Log, "Server already started.");
             }
 
         }

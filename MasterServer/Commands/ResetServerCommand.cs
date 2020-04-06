@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Byt3.ADL;
 using Byt3.CommandRunner;
 using MasterServer.Common;
 
@@ -7,23 +8,23 @@ namespace MasterServer.Commands
     public class ResetServerCommand : AbstractCommand
     {
         public ResetServerCommand() :
-            base(Reset, new[] { "--reset-server", "-reset" }, "Stops the MatchMakingServer and Resets it to be brand new.",
+            base( new[] { "--reset-server", "-reset" }, "Stops the MatchMakingServer and Resets it to be brand new.",
                 false)
         {
-
+            CommandAction = Reset;
         }
 
 
-        private static void Reset(StartupInfo info, string[] args)
+        private void Reset(StartupArgumentInfo info, string[] args)
         {
             if (Program.MatchMaker == null)
             {
-                Logger.DefaultLogger("Server not Initialized.");
+                Logger.Log(LogType.Log, "Server not Initialized.");
                 return;
             }
             if (Program.MatchMaker.IsRunning)
             {
-                Logger.DefaultLogger("Stopping Server...");
+                Logger.Log(LogType.Log, "Stopping Server...");
                 Program.MatchMaker.StopServer();
                 Thread.Sleep(1000); //The server has to shut down.
             }

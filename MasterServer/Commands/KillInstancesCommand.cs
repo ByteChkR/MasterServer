@@ -13,7 +13,7 @@ namespace MasterServer.Commands
         }
 
 
-        private static void KillInstances(StartupInfo info, string[] args)
+        private static void KillInstances(StartupArgumentInfo info, string[] args)
         {
             int[] ports = new int[args.Length];
             if (args.Length != 0)
