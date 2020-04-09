@@ -23,12 +23,13 @@ namespace MasterServer.Server.ConnectionManaging
 
         public bool ReceivedEndConnection()
         {
-            if (!Byt3Serializer.TryReadPacket(Client.GetStream(), out object o))
-            {
-                return true;
-            }
+            return Client.Client.Poll(0, SelectMode.SelectRead);
+            //if (/*!Byt3Serializer.TryReadPacket(Client.GetStream(), out object o)*/)
+            //{
+            //    return true;
+            //}
 
-            return o is ServerExitPacket;
+            //return o is ServerExitPacket;
         }
 
         public WaitingQueueItem(int heartBeatInterval, int maxMissedHeartBeats, ClientHandshakePacket initPacket, TcpClient client)
@@ -41,7 +42,7 @@ namespace MasterServer.Server.ConnectionManaging
             Identifier = Client.Client.RemoteEndPoint.ToString();
             Logger.DefaultLogger("Client " + Identifier + " added to the Waiting Queue.");
 
-            Byt3Serializer.WritePacket(Client.GetStream(), initPacket);
+            Byt3Serializer.TryWritePacket(Client.GetStream(), initPacket);
 
         }
 
@@ -102,13 +103,13 @@ namespace MasterServer.Server.ConnectionManaging
 
         public void SendMatchFound(int port)
         {
-            Byt3Serializer.WritePacket(Client.GetStream(), new ClientInstanceReadyPacket() { Port = port });
+            if (!Byt3Serializer.TryWritePacket(Client.GetStream(), new ClientInstanceReadyPacket() { Port = port })) throw new Exception("Serializer Write Error");
             //CloseConnection();
         }
 
         private void SendHeartbeat()
         {
-            Byt3Serializer.WritePacket(Client.GetStream(), new ClientHeartBeatPacket());
+            Byt3Serializer.TryWritePacket(Client.GetStream(), new ClientHeartBeatPacket());
         }
 
         public int CompareTo(WaitingQueueItem otherItem)

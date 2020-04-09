@@ -158,7 +158,7 @@ namespace MasterServer.Client
 
                 try
                 {
-                    Byt3Serializer.WritePacket(c.GetStream(), new ClientHeartBeatPacket());
+                   if(! Byt3Serializer.TryWritePacket(c.GetStream(), new ClientHeartBeatPacket()))throw new Exception("Serializer Write Error");
                 }
                 catch (Exception e)
                 {
