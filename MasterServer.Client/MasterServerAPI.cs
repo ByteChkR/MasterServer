@@ -84,7 +84,10 @@ namespace MasterServer.Client
             try
             {
                 events.OnStatusUpdate?.Invoke("Waiting for Handshake...");
-                obj = Byt3Serializer.ReadPacket(c.GetStream());
+                if (!Byt3Serializer.TryReadPacket(c.GetStream(), out obj))
+                {
+                    throw new Exception();
+                }
             }
             catch (Exception e)
             {
@@ -185,7 +188,10 @@ namespace MasterServer.Client
 
             try
             {
-                irp = (ClientInstanceReadyPacket)Byt3Serializer.ReadPacket(c.GetStream());
+                if (!Byt3Serializer.TryReadPacket(c.GetStream(), out irp))
+                {
+                    throw new Exception();
+                }
 
                 events.OnStatusUpdate?.Invoke("Received Packet Data..");
             }

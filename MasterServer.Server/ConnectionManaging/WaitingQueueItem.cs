@@ -23,7 +23,12 @@ namespace MasterServer.Server.ConnectionManaging
 
         public bool ReceivedEndConnection()
         {
-            return Byt3Serializer.ReadPacket(Client.GetStream()) is ServerExitPacket;
+            if (!Byt3Serializer.TryReadPacket(Client.GetStream(), out object o))
+            {
+                return true;
+            }
+
+            return o is ServerExitPacket;
         }
 
         public WaitingQueueItem(int heartBeatInterval, int maxMissedHeartBeats, ClientHandshakePacket initPacket, TcpClient client)
@@ -55,7 +60,10 @@ namespace MasterServer.Server.ConnectionManaging
             {
                 try
                 {
-                    object o = Byt3Serializer.ReadPacket(Client.GetStream());
+                    if (!Byt3Serializer.TryReadPacket(Client.GetStream(), out object o))
+                    {
+                        throw new Exception();
+                    }
                     if (o is ClientHeartBeatPacket)
                     {
                         //SendHeartbeat();
