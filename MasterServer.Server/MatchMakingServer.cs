@@ -113,8 +113,8 @@ namespace MasterServer.Server
             {
                 if (RemoveList.Contains(WaitingQueue[i]))
                 {
-                    if(!WaitingQueue[i].IsConnected || WaitingQueue[i].ReceivedEndConnection())
-                    RemoveList.Remove(WaitingQueue[i]);
+                    if (!WaitingQueue[i].IsConnected || WaitingQueue[i].ReceivedEndConnection())
+                        RemoveList.Remove(WaitingQueue[i]);
                     WaitingQueue.RemoveAt(i);
                     continue;
                 }

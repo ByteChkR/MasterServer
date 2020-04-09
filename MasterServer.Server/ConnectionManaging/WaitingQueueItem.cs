@@ -53,16 +53,27 @@ namespace MasterServer.Server.ConnectionManaging
 
             while (Client.Available > 0)
             {
-                object o = Byt3Serializer.ReadPacket(Client.GetStream());
-                if (o is ClientHeartBeatPacket)
+                try
                 {
-                    //SendHeartbeat();
-                    HeartBeatsSent++;
-                    LastHeartBeat = DateTime.Now;
-                    MissedHeartBeats = 0;
-                    return true;
+                    object o = Byt3Serializer.ReadPacket(Client.GetStream());
+                    if (o is ClientHeartBeatPacket)
+                    {
+                        //SendHeartbeat();
+                        HeartBeatsSent++;
+                        LastHeartBeat = DateTime.Now;
+                        MissedHeartBeats = 0;
+                        return true;
+                    }
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    return false;
+                }
+                
             }
+
+            
 
             MissedHeartBeats++;
             if (MissedHeartBeats <= MaxMissedHeartBeats)
