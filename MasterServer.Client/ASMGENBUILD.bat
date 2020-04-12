@@ -1,0 +1,7 @@
+call ..\buildscripts\GenerateConfig.bat ..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI MasterServer.Client MasterServer.Client
+..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI\AsmGen_build\AsmGen.exe .\MasterServer.Client.assemblyconfig -a D:\Users\Tim\Documents\MasterServer\Byt3\Libraries\Byt3.CommandRunner\Byt3.CommandRunner.csproj
+..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI\AsmGen_build\AsmGen.exe .\MasterServer.Client.assemblyconfig -a D:\Users\Tim\Documents\MasterServer\Byt3\Libraries\Byt3.Serialization\Byt3.Serialization.csproj
+..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI\AsmGen_build\AsmGen.exe .\MasterServer.Client.assemblyconfig -a D:\Users\Tim\Documents\MasterServer\Byt3\Libraries\Byt3.ADL\Byt3.ADL\Byt3.ADL.csproj
+..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI\AsmGen_build\AsmGen.exe .\MasterServer.Client.assemblyconfig -a D:\Users\Tim\Documents\MasterServer\Byt3\Utilities\Byt3.Utilities.Serialization\Byt3.Utilities.Serialization.csproj
+..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI\AsmGen_build\AsmGen.exe .\MasterServer.Client.assemblyconfig -a D:\Users\Tim\Documents\MasterServer\Byt3\Libraries\Byt3.Collections\Byt3.Collections.csproj
+call ..\buildscripts\BuildConfig.bat ..\Byt3\Consoles\Byt3.AssemblyGenerator.CLI MasterServer.Client
