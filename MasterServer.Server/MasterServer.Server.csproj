@@ -5,8 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Byt3\Libraries\Byt3.CommandRunner\Byt3.CommandRunner.csproj" />
-    <ProjectReference Include="..\Byt3\Libraries\Byt3.Serialization\Byt3.Serialization.csproj" />
     <ProjectReference Include="..\MasterServer.Common\MasterServer.Common.csproj" />
   </ItemGroup>
 

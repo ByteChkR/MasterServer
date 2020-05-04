@@ -37,10 +37,10 @@ namespace MasterServer.Server
         public bool IsRunning { get; private set; }
         public MatchMakingServer(MatchMakerSettings settings)
         {
-            Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
-            Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
-            Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
-            Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
+          SerializerSingleton. Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
+          SerializerSingleton.Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
+          SerializerSingleton.Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
+          SerializerSingleton.Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
             Settings = settings;
             Logger.DefaultLogger(Settings.ToString());
             PortManager = new PortManager(Settings);

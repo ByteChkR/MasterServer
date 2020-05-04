@@ -18,12 +18,12 @@ namespace MasterServer.Commands
         {
             if(Program.MatchMaker.IsRunning)
             {
-                Logger.Log(LogType.Log, "Stopping Server...");
+                Logger.Log(LogType.Log, "Stopping Server...", 1);
                 Program.MatchMaker.StopServer();
             }
             else
             {
-                Logger.Log(LogType.Log, "Server not Started.");
+                Logger.Log(LogType.Log, "Server not Started.", 1);
             }
         }
     }

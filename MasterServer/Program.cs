@@ -81,10 +81,10 @@ namespace MasterServer
 
         private static void StartClientSychronous()
         {
-            Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
-            Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
-            Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
-            Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
+            SerializerSingleton.Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
+            SerializerSingleton.Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
+            SerializerSingleton.Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
+            SerializerSingleton.Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
 
             MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents
             {
@@ -114,10 +114,10 @@ namespace MasterServer
         private static void StartClient()
         {
 
-            Byt3Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
-            Byt3Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
-            Byt3Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
-            Byt3Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
+            SerializerSingleton.Serializer.AddSerializer<ClientHeartBeatPacket>(new ClientHeartBeatSerializer());
+            SerializerSingleton.Serializer.AddSerializer<ClientHandshakePacket>(new ClientHandshakeSerializer());
+            SerializerSingleton.Serializer.AddSerializer<ClientInstanceReadyPacket>(new ClientInstanceReadySerializer());
+            SerializerSingleton.Serializer.AddSerializer<ServerExitPacket>(new ServerExitSerializer());
 
             MasterServerAPI.ConnectionEvents evs = new MasterServerAPI.ConnectionEvents
             {

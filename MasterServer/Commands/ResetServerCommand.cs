@@ -19,12 +19,12 @@ namespace MasterServer.Commands
         {
             if (Program.MatchMaker == null)
             {
-                Logger.Log(LogType.Log, "Server not Initialized.");
+                Logger.Log(LogType.Log, "Server not Initialized.", 1);
                 return;
             }
             if (Program.MatchMaker.IsRunning)
             {
-                Logger.Log(LogType.Log, "Stopping Server...");
+                Logger.Log(LogType.Log, "Stopping Server...", 1);
                 Program.MatchMaker.StopServer();
                 Thread.Sleep(1000); //The server has to shut down.
             }

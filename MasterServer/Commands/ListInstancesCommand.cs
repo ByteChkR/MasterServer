@@ -26,7 +26,7 @@ namespace MasterServer.Commands
                 s += "\t\tUptime: " + serverInstanceInfo.UpTime + "\n\n";
             }
 
-            Logger.Log(LogType.Log, s);
+            Logger.Log(LogType.Log, s, 1);
         }
     }
 }

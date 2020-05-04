@@ -21,12 +21,12 @@ namespace MasterServer.Commands
 
             if (!Program.MatchMaker.IsRunning)
             {
-                Logger.Log(LogType.Log, "Starting Server...");
+                Logger.Log(LogType.Log, "Starting Server...", 1);
                 Program.MatchMaker.StartServer();
             }
             else
             {
-                Logger.Log(LogType.Log, "Server already started.");
+                Logger.Log(LogType.Log, "Server already started.", 1);
             }
 
         }

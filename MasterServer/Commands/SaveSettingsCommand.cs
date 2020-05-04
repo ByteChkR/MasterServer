@@ -17,7 +17,7 @@ namespace MasterServer.Commands
         {
             if (args.Length > 0)
             {
-                Logger.Log(LogType.Log, "Saved Settings.");
+                Logger.Log(LogType.Log, "Saved Settings.", 1);
                 Program.Settings.Save(args[0]);
             }
         }

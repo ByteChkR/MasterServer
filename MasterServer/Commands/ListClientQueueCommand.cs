@@ -28,7 +28,7 @@ namespace MasterServer.Commands
                 s += "\t\tHeartbeats Sent:" + sessionInfo.HeartbeatsSent + "\n\n";
             }
 
-            Logger.Log(LogType.Log, s);
+            Logger.Log(LogType.Log, s,1);
         }
     }
 

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Byt3\Libraries\Byt3.CommandRunner\Byt3.CommandRunner.csproj" />
     <ProjectReference Include="..\MasterServer.Client\MasterServer.Client.csproj" />
     <ProjectReference Include="..\MasterServer.Server\MasterServer.Server.csproj" />
   </ItemGroup>

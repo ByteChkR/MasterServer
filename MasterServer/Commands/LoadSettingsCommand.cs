@@ -19,12 +19,12 @@ namespace MasterServer.Commands
             if (args.Length != 0)
             {
                 Program.Settings = MatchMakerSettings.Load(args[0]);
-                Logger.Log(LogType.Log, "Loaded Settings.");
+                Logger.Log(LogType.Log, "Loaded Settings.", 1);
             }
             else
             {
                 Program.Settings= new MatchMakerSettings();
-                Logger.Log(LogType.Log, "Settings set to Default.");
+                Logger.Log(LogType.Log, "Settings set to Default.", 1);
             }
         }
     }

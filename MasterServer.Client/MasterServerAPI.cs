@@ -84,7 +84,7 @@ namespace MasterServer.Client
             try
             {
                 events.OnStatusUpdate?.Invoke("Waiting for Handshake...");
-                if (!Byt3Serializer.TryReadPacket(c.GetStream(), out obj))
+                if (!SerializerSingleton.Serializer.TryReadPacket(c.GetStream(), out obj))
                 {
                     throw new Exception();
                 }
@@ -158,7 +158,7 @@ namespace MasterServer.Client
 
                 try
                 {
-                   if(! Byt3Serializer.TryWritePacket(c.GetStream(), new ClientHeartBeatPacket()))throw new Exception("Serializer Write Error");
+                   if(!SerializerSingleton.Serializer.TryWritePacket(c.GetStream(), new ClientHeartBeatPacket()))throw new Exception("Serializer Write Error");
                 }
                 catch (Exception e)
                 {
@@ -188,7 +188,7 @@ namespace MasterServer.Client
 
             try
             {
-                if (!Byt3Serializer.TryReadPacket(c.GetStream(), out irp))
+                if (!SerializerSingleton.Serializer.TryReadPacket(c.GetStream(), out irp))
                 {
                     throw new Exception();
                 }

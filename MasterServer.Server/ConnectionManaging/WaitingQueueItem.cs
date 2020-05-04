@@ -42,7 +42,7 @@ namespace MasterServer.Server.ConnectionManaging
             Identifier = Client.Client.RemoteEndPoint.ToString();
             Logger.DefaultLogger("Client " + Identifier + " added to the Waiting Queue.");
 
-            Byt3Serializer.TryWritePacket(Client.GetStream(), initPacket);
+            SerializerSingleton.Serializer.TryWritePacket(Client.GetStream(), initPacket);
 
         }
 
@@ -61,7 +61,7 @@ namespace MasterServer.Server.ConnectionManaging
             {
                 try
                 {
-                    if (!Byt3Serializer.TryReadPacket(Client.GetStream(), out object o))
+                    if (!SerializerSingleton.Serializer.TryReadPacket(Client.GetStream(), out object o))
                     {
                         throw new Exception();
                     }
@@ -103,13 +103,13 @@ namespace MasterServer.Server.ConnectionManaging
 
         public void SendMatchFound(int port)
         {
-            if (!Byt3Serializer.TryWritePacket(Client.GetStream(), new ClientInstanceReadyPacket() { Port = port })) throw new Exception("Serializer Write Error");
+            if (!SerializerSingleton.Serializer.TryWritePacket(Client.GetStream(), new ClientInstanceReadyPacket() { Port = port })) throw new Exception("Serializer Write Error");
             //CloseConnection();
         }
 
         private void SendHeartbeat()
         {
-            Byt3Serializer.TryWritePacket(Client.GetStream(), new ClientHeartBeatPacket());
+            SerializerSingleton.Serializer.TryWritePacket(Client.GetStream(), new ClientHeartBeatPacket());
         }
 
         public int CompareTo(WaitingQueueItem otherItem)

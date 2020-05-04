@@ -20,7 +20,7 @@ namespace MasterServer.Commands
             ServerOperationMode mode =
                 args.Length == 0 ? ServerOperationMode.None : Enum.Parse<ServerOperationMode>(args[0], true);
 
-            Logger.Log(LogType.Log, "New Server Mode: " + mode);
+            Logger.Log(LogType.Log, "New Server Mode: " + mode, 1);
             Program.Settings.SetOperationMode(mode);
         }
     }
